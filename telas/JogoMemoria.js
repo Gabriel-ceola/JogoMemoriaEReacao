@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 
 const NUM_LEDS = 5;
@@ -11,15 +11,32 @@ const JogoMemoria = () => {
   const [gameRunning, setGameRunning] = useState(false);
   const [allowUserInput, setAllowUserInput] = useState(false);
   const [delay, setDelay] = useState(INITIAL_DELAY);
+  const [countdown, setCountdown] = useState(null);
 
   const startMemoryGame = () => {
-    setGameRunning(true);
-    setAllowUserInput(false);
-    const newSequence = generateSequence();
-    setSequence(newSequence);
-    setUserSequence([]);
-    playSequence(newSequence);
+    setCountdown(3);
   };
+
+  useEffect(() => {
+    if (countdown === null) return;
+
+    if (countdown > 0) {
+      const timer = setTimeout(() => {
+        setCountdown(countdown - 1);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+
+    if (countdown === 0) {
+      setGameRunning(true);
+      setAllowUserInput(false);
+      const newSequence = generateSequence();
+      setSequence(newSequence);
+      setUserSequence([]);
+      playSequence(newSequence);
+      setCountdown(null);
+    }
+  }, [countdown]);
 
   const generateSequence = () => {
     let newSequence = [];
@@ -43,42 +60,36 @@ const JogoMemoria = () => {
     return new Promise((resolve) => {
       setLeds((prevLeds) => {
         let newLeds = [...prevLeds];
-        newLeds[index] = 'red';
+        newLeds[index] = 'green';
         return newLeds;
       });
 
       setTimeout(() => {
         setLeds((prevLeds) => {
           let newLeds = [...prevLeds];
-          newLeds[index] = 'green';
+          newLeds[index] = 'red';
           return newLeds;
         });
-
-        setTimeout(() => {
-          setLeds((prevLeds) => {
-            let newLeds = [...prevLeds];
-            newLeds[index] = 'red';
-            return newLeds;
-          });
-          resolve();
-        }, 800);
-      }, 200);
+        resolve();
+      }, 800);
     });
   };
 
   const checkUserSequence = (index) => {
     if (!allowUserInput) return;
-
+  
     const newUserSequence = [...userSequence, index];
     setUserSequence(newUserSequence);
-
-    if (newUserSequence[newUserSequence.length - 1] !== sequence[newUserSequence.length - 1]) {
-      Alert.alert('Erro!', 'Você errou a sequência.');
-      setGameRunning(false);
-      setAllowUserInput(false);
-      return;
+  
+    for (let i = 0; i < newUserSequence.length; i++) {
+      if (newUserSequence[i] !== sequence[i]) {
+        Alert.alert('Erro!', 'Você errou a sequência.');
+        setGameRunning(false);
+        setAllowUserInput(false);
+        return;
+      }
     }
-
+  
     if (newUserSequence.length === sequence.length) {
       Alert.alert('Parabéns!', 'Você acertou a sequência!');
       setAllowUserInput(false);
@@ -88,20 +99,38 @@ const JogoMemoria = () => {
       }, 1000);
     }
   };
+  
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Jogo da Memória</Text>
-      <View style={styles.ledContainer}>
-        {leds.map((color, index) => (
-          <TouchableOpacity key={index} onPress={() => checkUserSequence(index)}>
-            <View style={[styles.led, { backgroundColor: color }]} />
-          </TouchableOpacity>
-        ))}
-      </View>
-      <TouchableOpacity style={styles.button} onPress={startMemoryGame}>
-        <Text style={styles.buttonText}>Iniciar Jogo da Memória</Text>
-      </TouchableOpacity>
+      <Text style={styles.instructions}>
+        Teste sua memória! Observe a sequência de LEDs acendendo e tente repetir
+        a mesma sequência clicando nos LEDs na ordem correta. A cada acerto, a
+        velocidade aumenta.
+      </Text>
+
+      {countdown !== null && countdown > 0 ? (
+        <Text style={styles.countdownText}>Iniciando em: {countdown}</Text>
+      ) : (
+        <>
+          <View style={styles.ledContainer}>
+            {leds.map((color, index) => (
+              <TouchableOpacity
+                key={index}
+                onPress={() => checkUserSequence(index)}
+              >
+                <View style={[styles.led, { backgroundColor: color }]} />
+              </TouchableOpacity>
+            ))}
+          </View>
+          {!gameRunning && (
+            <TouchableOpacity style={styles.button} onPress={startMemoryGame}>
+              <Text style={styles.buttonText}>Iniciar Jogo da Memória</Text>
+            </TouchableOpacity>
+          )}
+        </>
+      )}
     </View>
   );
 };
@@ -116,6 +145,19 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  instructions: {
+    fontSize: 16,
+    color: '#333',
+    textAlign: 'center',
+    marginBottom: 20,
+    paddingHorizontal: 20,
+  },
+  countdownText: {
+    fontSize: 30,
+    fontWeight: 'bold',
+    color: '#FF0000',
     marginBottom: 20,
   },
   ledContainer: {
