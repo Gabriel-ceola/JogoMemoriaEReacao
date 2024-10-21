@@ -23,12 +23,17 @@ const JogoFormato = () => {
   };
 
   const generateOptions = (correctFormat) => {
-    const shuffled = [...FORMATS].sort(() => 0.5 - Math.random());
-    
-    const correctOptionIndex = Math.floor(Math.random() * 4);
-    shuffled[correctOptionIndex] = correctFormat;
+    const optionsSet = new Set();
+    optionsSet.add(correctFormat.shape);
 
-    return shuffled.slice(0, 4);
+    while (optionsSet.size < 4) {
+      const randomFormat = getRandomFormat();
+      optionsSet.add(randomFormat.shape);
+    }
+
+    const uniqueOptions = Array.from(optionsSet);
+
+    return uniqueOptions.sort(() => 0.5 - Math.random()).map(shape => FORMATS.find(format => format.shape === shape));
   };
 
   const checkAnswer = (option) => {
