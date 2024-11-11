@@ -5,6 +5,7 @@ import TelaInicio from './telas/TelaInicial';
 import TelaJogoMemoria from './telas/JogoMemoria';
 import TelaJogoReacao from './telas/JogoReacao';
 import TelaJogoFormato from './telas/JogoFormato';
+import TelaJogoSequencia from './telas/JogoSequenciaLogica';
 
 const Stack = createStackNavigator();
 
@@ -16,6 +17,7 @@ export default function App() {
         <Stack.Screen name="JogoMemoria" component={TelaJogoMemoria} />
         <Stack.Screen name="JogoReacao" component={TelaJogoReacao} />
         <Stack.Screen name="JogoFormato" component={TelaJogoFormato} />
+        <Stack.Screen name="JogoSequenciaLogica" component={TelaJogoSequencia} />
       </Stack.Navigator>
     </NavigationContainer>
   );

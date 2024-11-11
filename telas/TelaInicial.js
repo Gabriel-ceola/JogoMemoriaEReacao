@@ -14,6 +14,9 @@ const HomeScreen = ({ navigation }) => {
       <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('JogoFormato')}>
         <Text style={styles.buttonText}>Jogo dos Formatos</Text>
       </TouchableOpacity>
+      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('JogoSequenciaLogica')}>
+        <Text style={styles.buttonText}>Jogo da Sequência</Text>
+      </TouchableOpacity>
     </View>
   );
 };
