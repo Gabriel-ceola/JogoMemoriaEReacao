@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
   optionText: {
     color: '#000', // Texto em preto
     textAlign: 'center',
-    fontSize: 16,
+    fontSize: 14,
   },
   startButton: {
     padding: 10,
